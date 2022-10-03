@@ -9,7 +9,7 @@ void table_employees(sqlite3* DB);
 void table_suppliers(sqlite3* DB);
 void table_customer_logs(sqlite3* DB) {};
 void restock() {};
-void inventory() {};
+void inventory(sqlite3 *DB);
 void view_customer_logs() {};
 void remove_goods() {};
 void data_employees(sqlite3 *DB);
@@ -19,11 +19,18 @@ int m_login(sqlite3* DB, string m_id);
 
 static int callback(void* data, int argc, char** argv, char** azColName)
 {
+    static int j;
     int i;
-    fprintf(stderr, "%s: ", (const char*)data);
-
+    if (j == 0) {
+        for (i = 0; i < argc; i++) {
+            printf("%s\t", azColName[i]);
+        }
+        printf("\n");
+        j++;
+    }
+    
     for (i = 0; i < argc; i++) {
-        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+        printf("%s\t\t", argv[i] ? argv[i] : "NULL");
     }
 
     printf("\n");
@@ -111,7 +118,7 @@ int main(int argc, char** argv)
         cin >> ch;
         switch (ch) {
             case 1:
-                inventory();
+                inventory(DB);
                 break;
             case 2:
                 restock();
@@ -140,7 +147,7 @@ int main(int argc, char** argv)
         cin >> ch;
         switch (ch) {
         case 1:
-            inventory();
+            inventory(DB);
             break;
         case 2:
             restock();
@@ -164,12 +171,12 @@ int main(int argc, char** argv)
 
 void table_inventory(sqlite3* DB) {
     string sql = "CREATE TABLE IF NOT EXISTS INVENTORY("
-        "ID             TEXT     PRIMARY KEY     NOT NULL, "
-        "S_NO           INT     NOT NULL, "          
+        "ID             TEXT    NOT NULL, "
+        "S_NO           INT     PRIMARY KEY     NOT NULL, "          
         "PRODUCT        TEXT    NOT NULL, "
         "QTY_IN_STOCK   INT     NOT NULL, "
         "UNIT_PRICE     INT     NOT NULL, "
-        "QTY_SOLD       INT "
+        "QTY_SOLD       INT, "
         "SALES_VALUE    INT );";
 
     int exit = 0;
@@ -292,12 +299,11 @@ void data_inventory(sqlite3* DB) {
     int exit = 0;
     char* messageError;
     string query = "SELECT * FROM INVENTORY;";
-    string sql("INSERT INTO INVENTORY VALUES('IC5221', 1, 'Chicken', 50, 275, 12, 3300);");
-    /*
-        "INSERT INTO INVENTORY VALUES('IUT2678', 2, 'Fish - Canned Sardines (100g)', 75, 100, 27, 2700);"
+    string sql("INSERT INTO INVENTORY VALUES('IC326', 1, 'Chicken (1kg)', 50, 275, 12, 3300);"
+        "INSERT INTO INVENTORY VALUES('IUT2678', 2, 'Canned Fish (100g)', 75, 100, 27, 2700);"
         "INSERT INTO INVENTORY VALUES('PF2618', 3, 'Yogurt (100g)', 28, 120, 6, 720);"
-        "INSERT INTO INVENTORY VALUES('WT23434', 4, 'Cottage cheese (200g)', 35, 70, 7, 245);"
-        "INSERT INTO INVENTORY VALUES('PO2356', 5, 'Cheese (10 slices)', 30, 125, 7, 875);"
+        "INSERT INTO INVENTORY VALUES('WT23434', 4, 'Tofu (200g)', 35, 70, 7, 245);"
+        "INSERT INTO INVENTORY VALUES('PO2356', 5, 'Cheese (100g)', 30, 125, 7, 875);"
         "INSERT INTO INVENTORY VALUES('FGI4326', 6, 'Butter (100g)', 26, 55, 6, 330);"
         "INSERT INTO INVENTORY VALUES('FDTE445', 7, 'Almonds (500g)', 40, 650, 5, 3250);"
         "INSERT INTO INVENTORY VALUES('OFSI345', 8, 'Walnuts (500g)', 35, 350, 4, 1400);"
@@ -332,7 +338,6 @@ void data_inventory(sqlite3* DB) {
         "INSERT INTO INVENTORY VALUES('WRIG621', 37, 'Eggplant (1 kg)', 5, 24, 1, 24);"
         "INSERT INTO INVENTORY VALUES('ARE547', 38, 'Garlic (1 kg)', 5, 60, 1, 60);"
         "INSERT INTO INVENTORY VALUES('GN2945', 39, 'Ginger (1 kg)', 5, 50, 1, 50);");
-        */
 
     exit = sqlite3_exec(DB, sql.c_str(), NULL, 0, &messageError);
     if (exit != SQLITE_OK) {
@@ -346,3 +351,10 @@ void data_inventory(sqlite3* DB) {
 
     sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
 };
+
+void inventory(sqlite3 *DB) {
+    string query = "SELECT * FROM INVENTORY;";
+    cout << "INVENTORY\n" << endl;
+    sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+
+}
