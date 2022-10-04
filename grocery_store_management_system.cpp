@@ -40,10 +40,10 @@ public:
 
 class manager : public employees {
 public:
-    void view_suppliers(sqlite3* db) {};
+    void view_suppliers(sqlite3* db);
     void add_suppliers(sqlite3* db) {};
     void delete_suppliers(sqlite3* db) {};
-    void view_employees(sqlite3* db) {};
+    void view_employees(sqlite3* db);
     void promote_employee(sqlite3* db) {};
     void update_emp_salary(sqlite3* db) {};
 };
@@ -53,6 +53,7 @@ void table_employees(sqlite3* DB);
 void table_suppliers(sqlite3* DB);
 void data_employees(sqlite3* DB);
 void data_inventory(sqlite3* DB);
+void data_suppliers(sqlite3* DB);
 int emp_login(sqlite3* DB, string emp_id);
 int m_login(sqlite3* DB, string m_id);
 
@@ -78,17 +79,24 @@ int main(int argc, char** argv)
     else
         cout << "Opened Database Successfully!" << endl;
 
+
     /*
     table_inventory(DB);
     table_employees(DB);
     table_suppliers(DB);
     //table_customer_logs(DB);
+
     data_employees(DB);
     data_inventory(DB);
+    data_suppliers(DB);
+
+    char* messageError;
+    string sql("DROP TABLE SUPPLIERS;");
+    sqlite3_exec(DB, sql.c_str(), NULL, 0, &messageError);
     */
 
     employees emp;
-    manager mng;
+    manager mngr;
 
     cout << "Welcome User!" << endl;
     cout << "1. Employee login" << endl;
@@ -159,7 +167,7 @@ int main(int argc, char** argv)
         cin >> ch;
         switch (ch) {
         case 1:
-            emp.view_inventory(DB);
+            mngr.view_suppliers(DB);
             break;
         case 2:
             emp.inventory_restock(DB);
@@ -168,7 +176,7 @@ int main(int argc, char** argv)
             emp.remove_from_inventory(DB);
             break;
         case 4:
-            view_customer_logs();
+            mngr.view_employees(DB);
             break;
         case 5:
             view_customer_logs();
@@ -321,7 +329,7 @@ void table_suppliers(sqlite3* DB) {
         "NAME           TEXT    NOT NULL, "
         "PHONE_NO       INT     NOT NULL, "
         "EMAIL          TEXT     NOT NULL, "
-        "LAST_PURCHASE  DATE "
+        "LAST_PURCHASE  DATE, "
         "YEARS_OF_BUSINESS  INT );";
 
     int exit = 0;
@@ -481,12 +489,13 @@ void data_suppliers(sqlite3* DB) {
     int exit = 0;
     char* messageError;
     string query = "SELECT * FROM SUPPLIERS;";
-    string sql("INSERT INTO EMPLOYEES VALUES('S182221', 'STEVE', 'GATES', 'M', 27, 'CASHIER', 20000, 2021, 'stevegates@gmail.com', 9621043526, 'meowcat77', NULL);"
-        "INSERT INTO EMPLOYEES VALUES('S182222', 'JOLIE', 'RIVERS', 'F', 24, 'CASHIER', 22000, 2020, 'jolierivers99@gmail.com', 9643797653, 'dogwoof23', NULL);"
-        "INSERT INTO EMPLOYEES VALUES('S182223', 'MARK', 'RONSON', 'M', 32, 'SWEEPER', 10000, 2016, 'mark1989@yahoo.com', 896532543, NULL , NULL);"
-        "INSERT INTO EMPLOYEES VALUES('S182224', 'RICK', 'JOHNSON', 'M', 34, 'STAFF', 23500, 2018, 'rickkkjohn@gmail.com', 9354281437, 'bluesun', NULL);"
-        "INSERT INTO EMPLOYEES VALUES('S182225', 'MORTY', 'EDWARDS', 'M', 28, 'STAFF', 21000, 2022, 'edwardsmorty@yahoo.com', 8459652986, 'alien23', NULL);"
-        "INSERT INTO EMPLOYEES VALUES('S182226', 'CAMILA', 'RIVERA', 'F', 32, 'MANAGER', 45000, 2020, 'riveracamila1999@gmail.com', 7652364972, 'greenhoney21', 'oswald1999');");
+    string sql("INSERT INTO SUPPLIERS VALUES('SP791', 'Farm Naturals', 8355926419, 'farmnaturalsco@gmail.com', '2022-03-04', 4);"
+        "INSERT INTO SUPPLIERS VALUES('SP792', 'Farm and Fruits', 9543827542, 'farmnandfruitscompany@gmail.com', '2022-07-02', 5);"
+        "INSERT INTO SUPPLIERS VALUES('SP793', 'Organic Suppliers', 9498765325, 'organicsuppliersindia@yahoo.co.in', '2022-01-07', 2);"
+        "INSERT INTO SUPPLIERS VALUES('SP794', 'Raj Groceries', 8353618099, 'rajgroceries@gmail.com', '2021-12-11', 1);"
+        "INSERT INTO SUPPLIERS VALUES('SP795', 'Bala Akashaya Products', 8192837465, 'akashayabala@gmail.com', '2022-09-23', 11);"
+        "INSERT INTO SUPPLIERS VALUES('SP796', 'Prem Wholesale and retailers', 9222348717, 'premretail@yahoo.com', '2022-04-05', 6);"
+        "INSERT INTO SUPPLIERS VALUES('SP797', 'Organic Farming Retails', 8356781990, 'ofretails@gmail.com', '2022-01-17', 7);");
 
     exit = sqlite3_exec(DB, sql.c_str(), NULL, 0, &messageError);
     if (exit != SQLITE_OK) {
@@ -555,4 +564,16 @@ void employees::remove_from_inventory(sqlite3* DB) {
     else {
         cout << "Updated." << endl;
     }
+}
+
+void manager::view_suppliers(sqlite3* DB) {
+    string query = "SELECT * FROM SUPPLIERS;";
+    cout << "SUPPLIERS\n" << endl;
+    sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+}
+
+void manager::view_employees(sqlite3* DB) {
+    string query = "SELECT * FROM EMPLOYEES;";
+    cout << "EMPLOYEES\n" << endl;
+    sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
 }
