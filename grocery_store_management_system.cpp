@@ -42,10 +42,10 @@ class manager : public employees {
 public:
     void view_suppliers(sqlite3* db);
     void add_suppliers(sqlite3* db) {};
-    void delete_suppliers(sqlite3* db) {};
+    void delete_suppliers(sqlite3* db);
     void view_employees(sqlite3* db);
-    void promote_employee(sqlite3* db) {};
-    void update_emp_salary(sqlite3* db) {};
+    void promote_employee(sqlite3* db);
+    void update_emp_salary(sqlite3* db);
 };
 
 void table_inventory(sqlite3* DB);
@@ -173,16 +173,16 @@ int main(int argc, char** argv)
             emp.inventory_restock(DB);
             break;
         case 3:
-            emp.remove_from_inventory(DB);
+            mngr.delete_suppliers(DB);
             break;
         case 4:
             mngr.view_employees(DB);
             break;
         case 5:
-            view_customer_logs();
+            mngr.promote_employee(DB);
             break;
         case 6:
-            view_customer_logs();
+            mngr.update_emp_salary(DB);
             break;
         case 0:
             exit(-1);
@@ -576,4 +576,73 @@ void manager::view_employees(sqlite3* DB) {
     string query = "SELECT * FROM EMPLOYEES;";
     cout << "EMPLOYEES\n" << endl;
     sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+}
+
+void manager::delete_suppliers(sqlite3* DB) {
+    string id;
+    manager obj;
+    obj.view_suppliers(DB);
+    cout << "Enter 'S_ID' of supplier to be removed: " << endl;
+    cin >> obj.emp_id;
+    string query("DELETE FROM SUPPLIERS WHERE S_ID=\"" + obj.emp_id + "\";");
+    int rc = sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+
+    if (rc != SQLITE_OK) {
+        cout << "Unable to delete supplier." << endl;
+    }
+    else {
+        cout << "Deleted." << endl;
+    }
+}
+
+void manager::promote_employee(sqlite3* DB) {
+    manager obj;
+    obj.view_employees(DB);
+    cout << "Enter ID of employee to be promoted: " << endl;
+    cin >> obj.emp_id;
+    cout << "Enter new designation of employee: " << endl;
+    cin >> obj.DESIGNATION;
+    if ((obj.DESIGNATION == "MANAGER") || (obj.DESIGNATION == "Manager") || (obj.DESIGNATION == "manager")) {
+        cout << "Enter new manager password for said employee: " << endl;
+        cin >> obj.PASSWORD2;
+    }
+    else {
+        obj.PASSWORD2 = "NULL";
+    }
+    
+    cout << "Enter new salary: " << endl;
+    cin >> obj.SALARY;
+    stringstream obj1;
+    obj1 << obj.SALARY;
+    string salary_str;
+    obj1 >> salary_str;
+    string query("UPDATE EMPLOYEES SET DESIGNATION=\"" + obj.DESIGNATION + "\", PASSWORD2=\"" + obj.PASSWORD2 + "\", SALARY=" + salary_str + " WHERE EMP_ID =\"" + obj.emp_id + "\";");
+    int rc = sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+    if (rc == SQLITE_OK) {
+        cout << "Promoted." << endl;
+    }
+    else {
+        cout << "Unable to promote." << endl;
+    }
+}
+
+void manager::update_emp_salary(sqlite3* DB) {
+    manager obj;
+    obj.view_employees(DB);
+    cout << "Enter ID of employee whose salary is to be modified: " << endl;
+    cin >> obj.emp_id;
+    cout << "Enter new salary: " << endl;
+    cin >> obj.SALARY;
+    stringstream obj1;
+    obj1 << obj.SALARY;
+    string salary_str;
+    obj1 >> salary_str;
+    string query("UPDATE EMPLOYEES SET SALARY=" + salary_str + " WHERE EMP_ID =\"" + obj.emp_id + "\";");
+    int rc = sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+    if (rc == SQLITE_OK) {
+        cout << "Salary updated." << endl;
+    }
+    else {
+        cout << "Unable to update." << endl;
+    }
 }
