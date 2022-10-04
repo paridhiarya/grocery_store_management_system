@@ -1,62 +1,67 @@
 #include <iostream>
 #include <sqlite3.h>
 #include <string.h>
+#include <sstream>
 
 using namespace std;
+
+class employees {
+protected:
+    string emp_id;
+    string FIRST_NAME;
+    string LAST_NAME;
+    char GENDER;
+    int AGE;
+    string DESIGNATION;
+    int SALARY;
+    int YEAR_OF_JOINING;
+    string EMAIL;
+    int PHONE_NO;
+    string  PASSWORD1;
+    string  PASSWORD2;
+
+public:
+    void view_inventory(sqlite3* DB);
+    void inventory_restock(sqlite3* DB);
+    void remove_from_inventory(sqlite3* DB);
+
+};
+
+class inventory {
+public:
+    string ID;
+    string S_NO;
+    string PRODUCT;
+    string QTY_IN_STOCK;
+    int UNIT_PRICE;
+    string QTY_SOLD;
+    string SALES_VALUE;
+};
+
+class manager : public employees {
+public:
+    void view_suppliers(sqlite3* db) {};
+    void add_suppliers(sqlite3* db) {};
+    void delete_suppliers(sqlite3* db) {};
+    void view_employees(sqlite3* db) {};
+    void promote_employee(sqlite3* db) {};
+    void update_emp_salary(sqlite3* db) {};
+};
 
 void table_inventory(sqlite3* DB);
 void table_employees(sqlite3* DB);
 void table_suppliers(sqlite3* DB);
-void table_customer_logs(sqlite3* DB) {};
-void restock() {};
-void inventory(sqlite3 *DB);
-void view_customer_logs() {};
-void remove_goods() {};
-void data_employees(sqlite3 *DB);
+void data_employees(sqlite3* DB);
 void data_inventory(sqlite3* DB);
 int emp_login(sqlite3* DB, string emp_id);
 int m_login(sqlite3* DB, string m_id);
 
-static int callback(void* data, int argc, char** argv, char** azColName)
-{
-    static int j;
-    int i;
-    if (j == 0) {
-        for (i = 0; i < argc; i++) {
-            printf("%s\t", azColName[i]);
-        }
-        printf("\n");
-        j++;
-    }
-    
-    for (i = 0; i < argc; i++) {
-        printf("%s\t\t", argv[i] ? argv[i] : "NULL");
-    }
+void table_customer_logs(sqlite3* DB) {};
+void view_customer_logs() {};
 
-    printf("\n");
-    return 0;
-}
-
-static int callback_pass(void* data, int argc, char** argv, char** azColName)
-{
-    int i, flag;
-    char pass[20];
-    cout << "Enter password: ";
-    cin >> pass;
-    
-    for (i = 0; i < argc; i++) {
-        if (strcmp(argv[0], pass) == 0) {
-            cout << "Password matches." << endl;
-            flag = 0;
-        }
-        else {
-            flag = 1;
-        }
-    }
-
-    printf("\n");
-    return flag;
-}
+int qty_updated_restock = 0;
+int qty_removed = 0;
+int new_sales = 0, qty_sold = 0;
 
 int main(int argc, char** argv)
 {
@@ -73,12 +78,17 @@ int main(int argc, char** argv)
     else
         cout << "Opened Database Successfully!" << endl;
 
+    /*
     table_inventory(DB);
     table_employees(DB);
     table_suppliers(DB);
     //table_customer_logs(DB);
-    //data_employees(DB);
-    //data_inventory(DB);
+    data_employees(DB);
+    data_inventory(DB);
+    */
+
+    employees emp;
+    manager mng;
 
     cout << "Welcome User!" << endl;
     cout << "1. Employee login" << endl;
@@ -117,45 +127,53 @@ int main(int argc, char** argv)
         cout << "Enter your choice:" << endl;
         cin >> ch;
         switch (ch) {
-            case 1:
-                inventory(DB);
-                break;
-            case 2:
-                restock();
-                break;
-            case 3:
-                remove_goods();
-                break;
-            case 4:
-                view_customer_logs();
-                break;
-            case 0:
-                exit(-1);
-                break;
+        case 1:
+            emp.view_inventory(DB);
+            break;
+        case 2:
+            emp.inventory_restock(DB);
+            break;
+        case 3:
+            emp.remove_from_inventory(DB);
+            break;
+        case 4:
+            view_customer_logs();
+            break;
+        case 0:
+            exit(-1);
+            break;
         }
 
     }
 
     while ((ch != 0) && (interface2_flag == 1)) {
         cout << "Welcome to Manager Interface" << endl;
-        cout << "1. View Inventory" << endl;
-        cout << "2. Restock Items" << endl;
-        cout << "3. Remove Damaged goods" << endl;
-        cout << "4. View Customer logs" << endl;
+        cout << "1. View Suppliers List" << endl;
+        cout << "2. Add Suppliers" << endl;
+        cout << "3. Remove Suppliers" << endl;
+        cout << "4. View Employee Details" << endl;
+        cout << "5. Promote an Employee" << endl;
+        cout << "6. Update Salary of Employee" << endl;
         cout << "! Press 0 to exit !" << endl;
         cout << "Enter your choice:" << endl;
         cin >> ch;
         switch (ch) {
         case 1:
-            inventory(DB);
+            emp.view_inventory(DB);
             break;
         case 2:
-            restock();
+            emp.inventory_restock(DB);
             break;
         case 3:
-            remove_goods();
+            emp.remove_from_inventory(DB);
             break;
         case 4:
+            view_customer_logs();
+            break;
+        case 5:
+            view_customer_logs();
+            break;
+        case 6:
             view_customer_logs();
             break;
         case 0:
@@ -169,10 +187,116 @@ int main(int argc, char** argv)
     return (0);
 }
 
+static int callback(void* data, int argc, char** argv, char** azColName)
+{
+    static int j;
+    int i;
+    if (j == 0) {
+        for (i = 0; i < argc; i++) {
+            printf("%s\t", azColName[i]);
+        }
+        printf("\n");
+        j++;
+    }
+
+    for (i = 0; i < argc; i++) {
+        printf("%s\t\t", argv[i] ? argv[i] : "NULL");
+    }
+
+    printf("\n");
+    return 0;
+}
+
+static int callback_pass(void* data, int argc, char** argv, char** azColName)
+{
+    int i, flag;
+    char pass[20];
+    cout << "Enter password: ";
+    cin >> pass;
+
+    for (i = 0; i < argc; i++) {
+        if (strcmp(argv[0], pass) == 0) {
+            cout << "Password matches." << endl;
+            flag = 0;
+        }
+        else {
+            flag = 1;
+        }
+    }
+
+    printf("\n");
+    return flag;
+}
+
+static int callback_restock(void* data, int argc, char** argv, char** azColName)
+{
+    string flag;
+    int n;
+    flag = argv[0];
+    stringstream obj;
+    obj << flag;
+    obj >> qty_updated_restock;
+    cout << "Enter how many items to be added: ";
+    cin >> n;
+    qty_updated_restock = qty_updated_restock + n;
+    //cout << "Flag is: " <<  flag << endl;
+    //cout << "Flag is: " << qty_updated_restock << endl;
+    printf("\n");
+    return 0;
+}
+
+static int callback_remove(void* data, int argc, char** argv, char** azColName)
+{
+    string flag, flag2, flag3, flag4;
+    char ch;
+    int unit_price = 0;
+    flag = argv[3];
+    stringstream obj, obj1, obj2, obj3;
+    obj << flag;
+    obj >> qty_updated_restock;
+    cout << "Enter how many items to be removed: ";
+    cin >> qty_removed;
+    qty_updated_restock = qty_updated_restock - qty_removed;
+    //cout << "Flag is: " << flag << endl;
+    //cout << "Flag is: " << qty_updated_restock << endl;
+    flag2 = argv[4];
+    flag3 = argv[5];
+    flag4 = argv[6];
+    /*cout << flag2 << endl;
+    cout << flag3 << endl;
+    cout << flag4 << endl;
+    */
+    obj1 << flag2;
+    obj1 >> unit_price;
+    obj2 << flag3;
+    obj2 >> qty_sold;
+
+    //cout << "New qty sold: " << qty_sold << endl;
+    obj3 << flag4;
+    obj3 >> new_sales;
+
+    //cout << "New sales: " << new_sales << endl;
+    cout << "Were the items damaged or sold?\nEnter 'd' for damaged and 's' for sold: " << endl;
+    cin >> ch;
+    if ((ch == 's') || (ch == 'S')) {
+        qty_sold = qty_sold + qty_removed;
+        new_sales = new_sales + unit_price * qty_removed;
+
+    }
+    else if ((ch == 'd') || (ch == 'D')) {
+        cout << "Items removed." << endl;
+    }
+    else {
+        cout << "Invalid choice. Default choice (damaged) has been chosen." << endl;
+    }
+    printf("\n");
+    return 0;
+}
+
 void table_inventory(sqlite3* DB) {
     string sql = "CREATE TABLE IF NOT EXISTS INVENTORY("
         "ID             TEXT    NOT NULL, "
-        "S_NO           INT     PRIMARY KEY     NOT NULL, "          
+        "S_NO           INT     PRIMARY KEY     NOT NULL, "
         "PRODUCT        TEXT    NOT NULL, "
         "QTY_IN_STOCK   INT     NOT NULL, "
         "UNIT_PRICE     INT     NOT NULL, "
@@ -222,7 +346,7 @@ void table_employees(sqlite3* DB) {
         "SALARY             INT      NOT NULL,"
         "YEAR_OF_JOINING    INT      NOT NULL,"
         "EMAIL              TEXT,"
-        "PHONE_NO           INT,"  
+        "PHONE_NO           INT,"
         "PASSWORD1          TEXT,"
         "PASSWORD2          TEXT );";
 
@@ -238,7 +362,7 @@ void table_employees(sqlite3* DB) {
         cout << "Table created Successfully" << endl;
 }
 
-void data_employees(sqlite3 *DB) {
+void data_employees(sqlite3* DB) {
     int exit = 0;
     char* messageError;
     string query = "SELECT * FROM EMPLOYEES;";
@@ -265,13 +389,14 @@ void data_employees(sqlite3 *DB) {
 int emp_login(sqlite3* DB, string emp_id) {
     int chk;
     string sql("SELECT PASSWORD1 FROM EMPLOYEES WHERE EMP_ID = \"" + emp_id + "\";");
-
+    //string sql2("SELECT COUNT(*) FROM EMPLOYEES WHERE EMP_ID = \"" + emp_id + "\";");
     int rc = sqlite3_exec(DB, sql.c_str(), callback_pass, NULL, NULL);
 
     if (rc != SQLITE_OK) {
         cerr << "Access denied." << endl;
         chk = 0;
-    } else {
+    }
+    else {
         cout << "Access granted." << endl;
         chk = 1;
     }
@@ -352,9 +477,82 @@ void data_inventory(sqlite3* DB) {
     sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
 };
 
-void inventory(sqlite3 *DB) {
+void data_suppliers(sqlite3* DB) {
+    int exit = 0;
+    char* messageError;
+    string query = "SELECT * FROM SUPPLIERS;";
+    string sql("INSERT INTO EMPLOYEES VALUES('S182221', 'STEVE', 'GATES', 'M', 27, 'CASHIER', 20000, 2021, 'stevegates@gmail.com', 9621043526, 'meowcat77', NULL);"
+        "INSERT INTO EMPLOYEES VALUES('S182222', 'JOLIE', 'RIVERS', 'F', 24, 'CASHIER', 22000, 2020, 'jolierivers99@gmail.com', 9643797653, 'dogwoof23', NULL);"
+        "INSERT INTO EMPLOYEES VALUES('S182223', 'MARK', 'RONSON', 'M', 32, 'SWEEPER', 10000, 2016, 'mark1989@yahoo.com', 896532543, NULL , NULL);"
+        "INSERT INTO EMPLOYEES VALUES('S182224', 'RICK', 'JOHNSON', 'M', 34, 'STAFF', 23500, 2018, 'rickkkjohn@gmail.com', 9354281437, 'bluesun', NULL);"
+        "INSERT INTO EMPLOYEES VALUES('S182225', 'MORTY', 'EDWARDS', 'M', 28, 'STAFF', 21000, 2022, 'edwardsmorty@yahoo.com', 8459652986, 'alien23', NULL);"
+        "INSERT INTO EMPLOYEES VALUES('S182226', 'CAMILA', 'RIVERA', 'F', 32, 'MANAGER', 45000, 2020, 'riveracamila1999@gmail.com', 7652364972, 'greenhoney21', 'oswald1999');");
+
+    exit = sqlite3_exec(DB, sql.c_str(), NULL, 0, &messageError);
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error Insert" << std::endl;
+        sqlite3_free(messageError);
+    }
+    else
+        std::cout << "Records created Successfully!" << std::endl;
+
+    cout << "STATE OF TABLE AFTER INSERT" << endl;
+
+    sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+}
+
+void employees::view_inventory(sqlite3* DB) {
     string query = "SELECT * FROM INVENTORY;";
     cout << "INVENTORY\n" << endl;
     sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+}
 
+void employees::inventory_restock(sqlite3* DB) {
+    inventory obj1;
+    //string sno, qty_updated_restock_str;
+    view_inventory(DB);
+    cout << "Enter the 's_no' of the item you want to restock: " << endl;
+    cin >> obj1.S_NO;
+    string sql("SELECT QTY_IN_STOCK FROM INVENTORY WHERE S_NO=" + obj1.S_NO + ";");
+    sqlite3_exec(DB, sql.c_str(), callback_restock, NULL, NULL);
+    stringstream obj;
+    obj << qty_updated_restock;
+    obj >> obj1.QTY_IN_STOCK;
+    //cout << obj1.QTY_IN_STOCK;
+    string query("UPDATE INVENTORY SET QTY_IN_STOCK=" + obj1.QTY_IN_STOCK + " WHERE S_NO=" + obj1.S_NO + ";");
+    int rc = sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+
+    if (rc != SQLITE_OK) {
+        cerr << "Not updated." << endl;
+    }
+    else {
+        cout << "Updated." << endl;
+    }
+}
+
+void employees::remove_from_inventory(sqlite3* DB) {
+    char ch;
+    inventory obj1;
+    //string sno, qty_updated_restock_str;
+    view_inventory(DB);
+    cout << "Enter the 's_no' of the item you want to remove: " << endl;
+    cin >> obj1.S_NO;
+    string sql("SELECT * FROM INVENTORY WHERE S_NO=" + obj1.S_NO + ";");
+    sqlite3_exec(DB, sql.c_str(), callback_remove, NULL, NULL);
+    stringstream obj, obj2, obj3;
+    obj << qty_updated_restock;
+    obj >> obj1.QTY_IN_STOCK;
+    obj2 << qty_sold;
+    obj2 >> obj1.QTY_SOLD;
+    obj3 << new_sales;
+    obj3 >> obj1.SALES_VALUE;
+    string query("UPDATE INVENTORY SET QTY_IN_STOCK=" + obj1.QTY_IN_STOCK + ", QTY_SOLD=" + obj1.QTY_SOLD + ", SALES_VALUE=" + obj1.SALES_VALUE + " WHERE S_NO = " + obj1.S_NO + "; ");
+    int rc = sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+
+    if (rc != SQLITE_OK) {
+        cerr << "Not updated." << endl;
+    }
+    else {
+        cout << "Updated." << endl;
+    }
 }
