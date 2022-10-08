@@ -63,6 +63,7 @@ void view_customer_logs() {};
 int qty_updated_restock = 0;
 int qty_removed = 0;
 int new_sales = 0, qty_sold = 0;
+int flag_callback = -1;
 
 int main(int argc, char** argv)
 {
@@ -108,8 +109,11 @@ int main(int argc, char** argv)
         cout << "Enter Employee ID: " << endl;
         cin >> emp_id;
         interface1 = emp_login(DB, emp_id);
-        if (interface1 == 1) interface1_flag = 1;
-        else cout << "Exitting.";
+        if (flag_callback == -1) {
+            cout << "Employee ID not found. Exitting.";
+        } else if {
+            (interface1 == 1) interface1_flag = 1;
+        } else cout << "Exitting.";
     }
     else if (login_ch == 2) {
         string m_id;
@@ -217,7 +221,7 @@ static int callback(void* data, int argc, char** argv, char** azColName)
 
 static int callback_pass(void* data, int argc, char** argv, char** azColName)
 {
-    int i, flag;
+    int i;
     char pass[20];
     cout << "Enter password: ";
     cin >> pass;
@@ -225,15 +229,15 @@ static int callback_pass(void* data, int argc, char** argv, char** azColName)
     for (i = 0; i < argc; i++) {
         if (strcmp(argv[0], pass) == 0) {
             cout << "Password matches." << endl;
-            flag = 0;
+            flag_callback = 0;
         }
         else {
-            flag = 1;
+            flag_callback = 1;
         }
     }
 
     printf("\n");
-    return flag;
+    return flag_callback;
 }
 
 static int callback_restock(void* data, int argc, char** argv, char** azColName)
@@ -400,11 +404,17 @@ int emp_login(sqlite3* DB, string emp_id) {
     //string sql2("SELECT COUNT(*) FROM EMPLOYEES WHERE EMP_ID = \"" + emp_id + "\";");
     int rc = sqlite3_exec(DB, sql.c_str(), callback_pass, NULL, NULL);
 
+    cout << "Flag callback: " << flag_callback;
     if (rc != SQLITE_OK) {
         cerr << "Access denied." << endl;
         chk = 0;
     }
+    else if (flag_callback == -1) {
+            cout << "Employee ID not found. Exitting.";
+            chk = 0;
+    }
     else {
+        cout << "umm?" << endl;
         cout << "Access granted." << endl;
         chk = 1;
     }
@@ -644,5 +654,23 @@ void manager::update_emp_salary(sqlite3* DB) {
     }
     else {
         cout << "Unable to update." << endl;
+    }
+}
+
+void manager::add_suppliers(sqlite3* DB) {
+    string id;
+    manager obj;
+    supplier
+    cout << "Enter details of new supplier" << endl;
+    cout << "Enter S_ID of Supplier to be added: ";
+    cin >>
+    string sql("INSERT INTO SUPPLIERS VALUES('SP791', 'Farm Naturals', 8355926419, 'farmnaturalsco@gmail.com', '2022-03-04', 4);");
+    int rc = sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+
+    if (rc != SQLITE_OK) {
+        cout << "Unable to delete supplier." << endl;
+    }
+    else {
+        cout << "Deleted." << endl;
     }
 }

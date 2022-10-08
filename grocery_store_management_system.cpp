@@ -38,10 +38,20 @@ public:
     string SALES_VALUE;
 };
 
+class suppliers {
+public:
+    string S_ID;
+    string name;
+    string phone;
+    string email;
+    string years_of_business;
+    string last_purchase;
+};
+
 class manager : public employees {
 public:
     void view_suppliers(sqlite3* db);
-    void add_suppliers(sqlite3* db) {};
+    void add_suppliers(sqlite3* db);
     void delete_suppliers(sqlite3* db);
     void view_employees(sqlite3* db);
     void promote_employee(sqlite3* db);
@@ -170,7 +180,7 @@ int main(int argc, char** argv)
             mngr.view_suppliers(DB);
             break;
         case 2:
-            emp.inventory_restock(DB);
+            mngr.add_suppliers(DB);
             break;
         case 3:
             mngr.delete_suppliers(DB);
@@ -644,5 +654,34 @@ void manager::update_emp_salary(sqlite3* DB) {
     }
     else {
         cout << "Unable to update." << endl;
+    }
+}
+
+void manager::add_suppliers(sqlite3* DB) {
+    string id;
+    manager obj;
+    suppliers sup;
+    cout << "Enter details of new supplier" << endl;
+    cout << "Enter Supplier ID: ";
+    cin >> sup.S_ID;
+    cout << "Enter name of supplier: ";
+    cin >> sup.name;
+    cout << "Enter phone number of supplier: ";
+    cin >> sup.phone;
+    cout << "Enter email of supplier: ";
+    cin >> sup.email;
+    cout << "Enter last purchase date of supplier (in format YYYY-MM-DD): ";
+    cin >> sup.last_purchase;
+    cout << "Enter years of business with supplier: ";
+    cin >> sup.years_of_business;
+    
+    string query("INSERT INTO SUPPLIERS VALUES('" + sup.S_ID + "', '" + sup.name + "', " + sup.phone + ", '" + sup.email + "', '" + sup.last_purchase + "', " + sup.years_of_business + ");");
+    int rc = sqlite3_exec(DB, query.c_str(), callback, NULL, NULL);
+
+    if (rc != SQLITE_OK) {
+        cout << "Unable to delete supplier." << endl;
+    }
+    else {
+        cout << "Deleted." << endl;
     }
 }
