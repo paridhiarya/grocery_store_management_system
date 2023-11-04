@@ -10,15 +10,13 @@ The Grocery Store Management System is a software application designed to stream
 
 - **Customer Management**: Maintain customer records, including contact information, purchase history, and loyalty program details.
 
-- **Sales Analytics**: Generate reports and analytics on sales trends, popular products, and revenue. Use this data to make informed business decisions.
+- **Sales Analytics**: Generate data for reports and analytics on sales trends, popular products, and revenue. Use this data to make informed business decisions.
 
-- **Stock Alerts**: Receive notifications when products are running low or approaching their expiration dates, helping to reduce waste.
-
-- **Employee Management**: Assign roles and permissions to store employees, allowing them to access and perform specific tasks within the system.
-
+- **Self-Checkout Interface**: A self-checkout interface for customers with over 6 functionalities
+- 
 - **Supplier Management**: Keep track of supplier information, orders, and delivery schedules.
 
-- **Inventory Restocking**: Easily reorder items from suppliers when stock levels are low.
+- **Inventory Restocking**: Easily available quantity and contact information reorder items from suppliers when stock levels are low.
 
 ## Technologies incorporated: 
 C++ & SQL-API++ sq-lite3
