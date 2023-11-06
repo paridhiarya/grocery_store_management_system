@@ -70,27 +70,28 @@ C++ & SQL-API++ sq-lite3
 
 ## Getting Started
 
-To get started with the Color and Weight Sensing Object Sorting Model, follow these steps:
-
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/yourusername/color-weight-sensing-sorting-model.git
+   git clone https://github.com/yourusername/grocery-store-management.git
+   
 
-2. Set up the necessary hardware components, including Arduino Uno, Node-MCU, and HX711 Load Cell, and ensure they are properly connected.
+2. Install any required dependencies, if necessary. Ensure you have the appropriate programming language and database system installed.
 
-3. Install the Android application on your mobile device and connect it to the system.
+3. Compile and run the application using your preferred development environment.
 
-4. Start using the system to sort objects based on their color and weight.
+4. Configure the system by setting up your inventory, suppliers, employees, and customer data.
+
+5. Start using the system to manage your grocery store efficiently.
 
 ## Usage
-1. Launch the Android application and connect it to the hardware system.
+1. Launch the application and log in using your credentials.
 
-2. Place objects on the sensing platform and initiate the sorting process using the Android interface.
+2. Navigate through the various modules to manage inventory, process sales, monitor stock, and analyze sales data.
 
-3. The system will sort objects into four bins, and the Android interface will display object descriptions and counts in real time.
+3. Customize the system to meet the specific needs of your grocery store by modifying the code and database.
 
-4. Customize and configure the system to meet your specific sorting requirements and object categories.
+4. Train your employees on how to use the system for efficient store operations.
 
 ## Contributing
 1. If you wish to contribute to this project, please follow these steps:
